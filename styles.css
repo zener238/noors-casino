@@ -1,0 +1,29 @@
+:root {
+    --icon-width: 79px;
+    --icon-height: 79px;
+    --num-icons: 9;
+}
+
+/* ... other styles ... */
+
+.slots {
+    /* ... other styles ... */
+    display: flex;
+    /* Ensure flexbox layout */
+    justify-content: space-between;
+    /* Distribute reels evenly */
+
+    .reel {
+        /* ... other styles ... */
+        width: var(--icon-width);
+        /* Set reel width */
+        height: calc(3 * var(--icon-height));
+        /* Set reel height */
+        background-image: url('path/to/your/image.png');
+        /* Replace with correct image path */
+        background-size: cover;
+        /* Ensure image covers the entire reel */
+        background-repeat: no-repeat;
+        /* Prevent image repetition */
+    }
+}
