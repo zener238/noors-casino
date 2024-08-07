@@ -1,44 +1,35 @@
+
 /**
  * Setup
  */
 const debugEl = document.getElementById('debug'),
     // Mapping of indexes to icons: start from banana in middle of initial position and then upwards
-    iconMap = ["banana", "seven", "cherry", "plum", "orange", "bell", "bar", "lemon", "melon"],
+    iconMap = ["banana", "seven", "bar", "purple", "barbar", "cherry", "plum", "orange", "bell", "barbarbar", "lemon", "melon"],
     // Width of the icons
     icon_width = 79,
     // Height of one icon in the strip
     icon_height = 79,
     // Number of icons in the strip
-    num_icons = 9,
+    num_icons = 12,
     // Max-speed in ms for animating one icon down
     time_per_icon = 100,
     // Holds icon indexes
-    indexes = [0, 0, 0];
+    indexes = [0, 0, 0, 0];
 
 
 /** 
  * Roll one reel
  */
-const roll = (reel, offset = 0, target = null) => {
+const roll = (reel, offset = 0) => {
     // Minimum of 2 + the reel offset rounds
-    let delta = (offset + 2) * num_icons + Math.round(Math.random() * num_icons);
-
-    const style = getComputedStyle(reel),
-        // Current background position
-        backgroundPositionY = parseFloat(style["background-position-y"]);
-
-    // Rigged?
-    if (target) {
-        // calculate delta to target
-        const currentIndex = backgroundPositionY / icon_height;
-        delta = target - currentIndex + (offset + 2) * num_icons;
-    }
+    const delta = (offset + 2) * num_icons + Math.round(Math.random() * num_icons);
 
     // Return promise so we can wait for all reels to finish
     return new Promise((resolve, reject) => {
 
-
-        const
+        const style = getComputedStyle(reel),
+            // Current background position
+            backgroundPositionY = parseFloat(style["background-position-y"]),
             // Target background position
             targetBackgroundPositionY = backgroundPositionY + delta * icon_height,
             // Normalized background position, for reset
@@ -70,19 +61,14 @@ const roll = (reel, offset = 0, target = null) => {
  */
 function rollAll() {
 
+    debugEl.textContent = 'rolling...';
+
     const reelsList = document.querySelectorAll('.slots > .reel');
-
-    // rig the outcome for every 3rd roll, if targets is set to null, the outcome will not get rigged by the roll function
-    const targets = window.timesRolled && window.timesRolled % 2 ? [6, 6, 6] : null;
-    if (!window.timesRolled) window.timesRolled = 0;
-    window.timesRolled++;
-
-    debugEl.textContent = targets ? 'rolling (Rigged!) ...' : 'rolling...';
 
     Promise
 
         // Activate each reel, must convert NodeList to Array for this with spread operator
-        .all([...reelsList].map((reel, i) => roll(reel, i, targets ? targets[i] : null)))
+        .all([...reelsList].map((reel, i) => roll(reel, i)))
 
         // When all reels done animating (all promises solve)
         .then((deltas) => {

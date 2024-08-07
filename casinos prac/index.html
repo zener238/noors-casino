@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Slot Machine</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="slot-machine">
+        <div class="reel">
+            <img src="images/istockphoto-cheery.jpg" alt="Cherry" data-src="images/istockphoto-cheery.jpg">
+        </div>
+        <div class="reel">
+            <img src="images/istockphoto- lemon.jpg" alt="Lemon" data-src="images/istockphoto- lemon.jpg">
+        </div>
+        <div class="reel">
+            <img src="images/istockphoto-bell.jpg" alt="Bell" data-src="images/istockphoto-bell.jpg">
+        </div>
+        <button id="spin-button">Spin</button>
+        <div class="balance">Balance: $100</div>
+        <div class="winnings">Winnings: $0</div>
+    </div>
+    <audio id="spin-sound" src="sounds/spin.mp3"></audio>
+    <audio id="win-sound" src="sounds/win.mp3"></audio>
+    <audio id="lose-sound" src="sounds/lose.mp3"></audio>
+    <script src="script.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lucky Slots</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #1a1a1a, #4a4a4a);
+            color: #fff;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            background: #2c3e50;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+            text-align: center;
+        }
+
+        h1 {
+            color: #f1c40f;
+            margin-bottom: 20px;
+        }
+
+        .slot-machine {
+            background: #34495e;
+            border: 5px solid #f1c40f;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .slots {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0;
+        }
+
+        .slot {
+            font-size: 60px;
+            background: #fff;
+            border: 3px solid #f1c40f;
+            border-radius: 10px;
+            width: 80px;
+            height: 100px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .controls {
+            margin-top: 20px;
+        }
+
+        input,
+        button {
+            font-size: 16px;
+            padding: 10px;
+            margin: 5px;
+            border: none;
+            border-radius: 5px;
+        }
+
+        input {
+            width: 100px;
+            text-align: center;
+        }
+
+        button {
+            background: #e74c3c;
+            color: #fff;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        button:hover {
+            background: #c0392b;
+        }
+
+        #message {
+            margin-top: 20px;
+            font-weight: bold;
+            color: #f1c40f;
+        }
+
+        #balance {
+            font-size: 20px;
+            margin-bottom: 10px;
+        }
+
+        .login-page,
+        .game-page {
+            display: none;
+        }
+
+        #debug-panel {
+            margin-top: 20px;
+            text-align: left;
+            background: #2c3e50;
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        #sound-status {
+            margin-top: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="login-page" id="login-page">
+            <h1>Lucky Slots</h1>
+            <input type="text" id="username" placeholder="Username">
+            <input type="password" id="password" placeholder="Password">
+            <button id="signin">Sign In</button>
+            <p id="login-message"></p>
+        </div>
+
+        <div class="game-page" id="game-page">
+            <h1>Lucky Slots</h1>
+            <div id="balance">Balance: $<span id="balance-amount">0</span></div>
+            <div class="slot-machine">
+                <div class="slots">
+                    <div class="slot" id="slot1">🍒</div>
+                    <div class="slot" id="slot2">🍒</div>
+                    <div class="slot" id="slot3">🍒</div>
+                </div>
+                <div class="controls">
+                    <input type="number" id="bet" min="1" value="1">
+                    <button id="spin">Spin</button>
+                </div>
+            </div>
+            <div id="message"></div>
+            <button id="signout">Sign Out</button>
+        </div>
+
+        <div id="debug-panel">
+            <h3>Sound Debug Panel</h3>
+            <button id="test-sound">Test Sound</button>
+            <div id="sound-status"></div>
+        </div>
+    </div>
+
+    <script>
+        const symbols = ['🍒', '🍋', '🍇', '🔔', '💎', '7️⃣'];
+        let balance = 0;
+        let currentUser = null;
+        const users = {};
+
+        const winSound = new Audio('https://assets.mixkit.co/active_storage/sfx/2000/2000-preview.mp3');
+        const loseSound = new Audio('https://assets.mixkit.co/active_storage/sfx/2019/2019-preview.mp3');
+
+        const loginPage = document.getElementById('login-page');
+        const gamePage = document.getElementById('game-page');
+        const soundStatus = document.getElementById('sound-status');
+
+        function updateBalance(amount) {
+            balance += amount;
+            document.getElementById('balance-amount').textContent = balance;
+        }
+
+        function playSound(sound) {
+            sound.play().then(() => {
+                soundStatus.textContent = 'Sound played successfully!';
+            }).catch(error => {
+                soundStatus.textContent = `Error playing sound: ${error.message}`;
+                console.error('Error playing sound:', error);
+            });
+        }
+
+        function spin() {
+            const bet = parseInt(document.getElementById('bet').value);
+            if (bet > balance) {
+                alert('Insufficient balance!');
+                return;
+            }
+
+            updateBalance(-bet);
+
+            const slots = [
+                document.getElementById('slot1'),
+                document.getElementById('slot2'),
+                document.getElementById('slot3')
+            ];
+
+            slots.forEach(slot => {
+                slot.textContent = symbols[Math.floor(Math.random() * symbols.length)];
+            });
+
+            if (slots[0].textContent === slots[1].textContent && slots[1].textContent === slots[2].textContent) {
+                const winAmount = bet * 10;
+                updateBalance(winAmount);
+                document.getElementById('message').textContent = `Congratulations! You won $${winAmount}!`;
+                playSound(winSound);
+            } else {
+                document.getElementById('message').textContent = `You lost $${bet}. Try again!`;
+                playSound(loseSound);
+            }
+        }
+
+        function signIn() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            if (users[username] && users[username].password === password) {
+                currentUser = username;
+                balance = users[username].balance;
+                showGamePage();
+            } else if (!users[username]) {
+                users[username] = { password, balance: 100 };
+                currentUser = username;
+                balance = 100;
+                showGamePage();
+            } else {
+                document.getElementById('login-message').textContent = 'Incorrect password!';
+            }
+        }
+
+        function signOut() {
+            if (currentUser) {
+                users[currentUser].balance = balance;
+                currentUser = null;
+                balance = 0;
+                showLoginPage();
+            }
+        }
+
+        function showLoginPage() {
+            loginPage.style.display = 'block';
+            gamePage.style.display = 'none';
+            document.getElementById('username').value = '';
+            document.getElementById('password').value = '';
+            document.getElementById('login-message').textContent = '';
+        }
+
+        function showGamePage() {
+            loginPage.style.display = 'none';
+            gamePage.style.display = 'block';
+            document.getElementById('balance-amount').textContent = balance;
+            document.getElementById('message').textContent = `Welcome, ${currentUser}!`;
+        }
+
+        document.getElementById('spin').addEventListener('click', spin);
+        document.getElementById('signin').addEventListener('click', signIn);
+        document.getElementById('signout').addEventListener('click', signOut);
+        document.getElementById('test-sound').addEventListener('click', () => playSound(winSound));
+
+        // Initially show the login page
+        showLoginPage();
+    </script>
+</body>
+
+</html>
